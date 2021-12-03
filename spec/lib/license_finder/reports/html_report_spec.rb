@@ -24,6 +24,21 @@ module LicenseFinder
         is_expected.not_to have_text 'Paths'
       end
 
+      context 'when description has markdown content' do
+        let(:dependency) do
+          options = {
+            description: "bar-description ```\n<script id=\"foo\">window.alert('summary');</script>\n```"
+          }
+          package = Package.new('the-dep', nil, options)
+        end
+
+        it 'should render markdown content' do
+          is_expected.not_to have_selector('script#foo', visible: false)
+          is_expected.to have_text 'bar-description'
+          is_expected.to have_text "window.alert('summary');"
+        end
+      end
+
       context 'when the dependency is a merged package' do
         context 'when there is at least one aggregate path' do
           let(:merged_dependency) do
